@@ -18,16 +18,17 @@ const server = http.createServer((req, res) => {
             console.log(chunk);
             body.push(chunk);
         });
-        req.on('end', () => {
+        return req.on('end', () => {
             const parsdBody = Buffer.concat(body).toString();
             const message = parsdBody.split('=')[1];
             console.log(message);
-            fs.writeFileSync('message.txt', message);
+            fs.writeFile('message.txt', message, err => {
+                // Status code voor redirect
+                res.statusCode = 302;
+                res.setHeader('Location', '/');
+                return res.end();
+            });
         });
-        // Status code voor redirect
-        res.statusCode = 302;
-        res.setHeader('Location', '/');
-        return res.end();
     }
     res.setHeader('Content-Type', 'text/html');
     res.write('<html>');
